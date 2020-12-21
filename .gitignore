@@ -1,0 +1,14 @@
+# PhpStorm
+.idea/
+*.iml
+*.iws
+
+# Visual Studio Code
+.vscode/
+.history
+
+# Mac
+.DS_Store
+
+# Composer
+vendor/
