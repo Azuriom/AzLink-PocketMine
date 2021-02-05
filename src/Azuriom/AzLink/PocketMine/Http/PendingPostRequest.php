@@ -37,9 +37,9 @@ class PendingPostRequest
             require __DIR__.'/../../../../../vendor/autoload.php';
         }
 
-        $request = new Request('POST', $this->url, $this->headers, \GuzzleHttp\json_encode($this->data));
+        $request = new Request('POST', $this->url, $this->headers, $this->encodeJson($this->data));
 
-        $response = (new Client())->sendRequest($request);
+        $response = (new Client())->send($request);
 
         $data = json_decode($response->getBody(), true);
 
@@ -48,5 +48,16 @@ class PendingPostRequest
         }
 
         return $data;
+    }
+
+    protected function encodeJson(array $value): string
+    {
+        $json = json_encode($value);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new RuntimeException('JSON encode error: '.json_last_error_msg());
+        }
+
+        return $json;
     }
 }

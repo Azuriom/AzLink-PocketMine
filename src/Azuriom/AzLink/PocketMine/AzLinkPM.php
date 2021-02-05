@@ -13,7 +13,7 @@ class AzLinkPM extends PluginBase
 {
     /**
      * @var AzLinkPM
-     * @internal Should only be use in FetcherAsyncTask
+     * @internal Should only be used in FetcherAsyncTask
      */
     public static $instance;
 
@@ -50,7 +50,7 @@ class AzLinkPM extends PluginBase
                 'name' => $player->getName(),
                 'uuid' => $player->getXuid(),
             ];
-        }, $this->getServer()->getOnlinePlayers());
+        }, array_values($this->getServer()->getOnlinePlayers()));
 
         $data = [
             'platform' => [
