@@ -78,7 +78,7 @@ class AzLinkPM extends PluginBase
 
         return array_merge($data, [
             'system' => [
-                'cpu' => sys_getloadavg()[0],
+                'cpu' => $this->getLoadAverage(),
                 'ram' => memory_get_usage(),
             ],
             'worlds' => [
@@ -87,5 +87,13 @@ class AzLinkPM extends PluginBase
                 'entities' => $entities,
             ],
         ]);
+    }
+
+    private function getLoadAverage()
+    {
+        // sys_getloadavg is not implemented on Windows platforms.
+        $load = function_exists('sys_getloadavg') ? sys_getloadavg()[0] : false;
+
+        return is_int($load) ? $load : -1;
     }
 }

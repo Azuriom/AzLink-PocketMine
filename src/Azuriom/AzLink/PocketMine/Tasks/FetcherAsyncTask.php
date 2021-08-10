@@ -26,7 +26,8 @@ class FetcherAsyncTask extends AsyncTask
 
             $this->setResult($response);
         } catch (Exception $e) {
-            $this->setResult($e);
+            // Exceptions with a request object can't be serialized
+            $this->setResult(new Exception($e->getMessage(), $e->getCode()));
         }
     }
 
