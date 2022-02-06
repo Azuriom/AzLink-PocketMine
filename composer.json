@@ -1,22 +1,31 @@
 {
     "name": "azuriom/azlink-pocketmine",
     "require": {
-        "php": "^7.1",
-        "ext-json": "*",
-        "guzzlehttp/guzzle": "^7.0"
+        "php": "^8.0",
+        "guzzlehttp/guzzle": "^7.2"
     },
     "require-dev": {
-        "phpstan/phpstan": "^0.12.18",
-        "pocketmine/pocketmine-mp": "^3.0",
-        "phpstan/phpstan-strict-rules": "^0.12.2",
+        "phpstan/phpstan": "^1.2.0",
+        "pocketmine/pocketmine-mp": "^4.0.0",
+        "phpstan/phpstan-strict-rules": "^1.0",
         "phpstan/extension-installer": "^1.0"
     },
     "autoload": {
         "psr-4": {
-            "\\": "src/"
+            "Azuriom\\AzLink\\PocketMine\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
         }
     },
     "provide": {
+        "ext-chunkutils2": "*",
+        "ext-crypto": "*",
+        "ext-igbinary": "*",
+        "ext-leveldb": "*",
+        "ext-morton": "*",
         "ext-pthreads": "*",
         "ext-sockets": "*",
         "ext-yaml": "*"

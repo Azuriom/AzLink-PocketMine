@@ -9,14 +9,11 @@ use pocketmine\scheduler\Task;
 
 class FetcherTask extends Task
 {
-    /** @var DateTimeInterface */
-    protected $lastFullSent;
+    protected DateTimeInterface $lastFullSent;
 
-    /** @var DateTimeInterface */
-    protected $lastSent;
+    protected DateTimeInterface $lastSent;
 
-    /** @var AzLinkPM */
-    protected $plugin;
+    protected AzLinkPM $plugin;
 
     public function __construct(AzLinkPM $plugin)
     {
@@ -26,7 +23,7 @@ class FetcherTask extends Task
         $this->lastFullSent = new DateTime('01/01/2020');
     }
 
-    public function onRun(int $currentTick): void
+    public function onRun(): void
     {
         $siteKey = $this->plugin->getConfig()->get('siteKey');
         $siteUrl = $this->plugin->getConfig()->get('siteUrl');

@@ -4,18 +4,16 @@ namespace Azuriom\AzLink\PocketMine\Http;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
+use JsonException;
 use RuntimeException;
 
 class PendingPostRequest
 {
-    /** @var string */
-    protected $url;
+    protected string $url;
 
-    /** @var array */
-    protected $data;
+    protected array $data;
 
-    /** @var array */
-    protected $headers;
+    protected array $headers;
 
     public function __construct(string $url, array $data, array $headers)
     {
@@ -34,30 +32,26 @@ class PendingPostRequest
     public function send(): array
     {
         if (! class_exists(Client::class)) {
-            require __DIR__.'/../../../../../vendor/autoload.php';
+            require __DIR__.'/../../vendor/autoload.php';
         }
 
         $request = new Request('POST', $this->url, $this->headers, $this->encodeJson($this->data));
 
         $response = (new Client())->send($request);
 
-        $data = json_decode($response->getBody(), true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException('Invalid JSON received ('.json_last_error_msg().'): '.$response->getBody());
+        try {
+            return json_decode($response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new RuntimeException("Invalid JSON received ({$e->getMessage()}): {$response->getBody()}");
         }
-
-        return $data;
     }
 
     protected function encodeJson(array $value): string
     {
-        $json = json_encode($value);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException('JSON encode error: '.json_last_error_msg());
+        try {
+            return json_encode($value, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new RuntimeException('JSON encode error: '.$e->getMessage());
         }
-
-        return $json;
     }
 }

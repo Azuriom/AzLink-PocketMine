@@ -5,44 +5,32 @@ namespace Azuriom\AzLink\PocketMine;
 use Azuriom\AzLink\PocketMine\Commands\AzLinkCommand;
 use Azuriom\AzLink\PocketMine\Http\HttpClient;
 use Azuriom\AzLink\PocketMine\Tasks\FetcherTask;
-use pocketmine\level\Level;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
+use pocketmine\world\World;
 
 class AzLinkPM extends PluginBase
 {
     /**
-     * @var AzLinkPM
      * @internal Should only be used in FetcherAsyncTask
      */
-    public static $instance;
+    public static AzLinkPM $instance;
 
-    /**
-     * The AzLink HTTP client instance.
-     *
-     * @var HttpClient
-     */
-    public $httpClient;
+    public HttpClient $httpClient;
 
-    public function onEnable(): void
+    public function onLoad(): void
     {
         static::$instance = $this;
 
-        require_once __DIR__.'/../../../../vendor/autoload.php';
+        require_once __DIR__.'/../vendor/autoload.php';
 
         $this->httpClient = new HttpClient($this);
 
-        $this->getServer()->getCommandMap()->register($this->getName(), new AzLinkCommand($this));
+        $this->getServer()->getCommandMap()->register('azlink', new AzLinkCommand($this));
 
         $this->getScheduler()->scheduleDelayedRepeatingTask(new FetcherTask($this), 60 * 20, (60 - date('s')) * 20);
     }
 
-    /**
-     * Get the server data.
-     *
-     * @param  bool  $full
-     * @return array
-     */
     public function getServerData(bool $full = true): array
     {
         $players = array_map(function (Player $player) {
@@ -54,7 +42,7 @@ class AzLinkPM extends PluginBase
 
         $data = [
             'platform' => [
-                'type' => 'POCKET_MINE',
+                'type' => 'POCKETMINE',
                 'name' => $this->getServer()->getName(),
                 'version' => $this->getServer()->getVersion(),
             ],
@@ -68,18 +56,20 @@ class AzLinkPM extends PluginBase
             return $data;
         }
 
-        $entities = array_reduce($this->getServer()->getLevels(), function (int $sum, Level $level) {
-            return $sum + count($level->getEntities());
+        $worlds = $this->getServer()->getWorldManager()->getWorlds();
+
+        $entities = array_reduce($worlds, function (int $sum, World $world) {
+            return $sum + count($world->getEntities());
         }, 0);
 
-        $chunks = array_reduce($this->getServer()->getLevels(), function (int $sum, Level $level) {
-            return $sum + count($level->getChunks());
+        $chunks = array_reduce($worlds, function (int $sum, World $world) {
+            return $sum + count($world->getLoadedChunks());
         }, 0);
 
         return array_merge($data, [
             'system' => [
                 'cpu' => $this->getLoadAverage(),
-                'ram' => memory_get_usage(),
+                'ram' => memory_get_usage() / 1024 / 1024,
             ],
             'worlds' => [
                 'tps' => $this->getServer()->getTicksPerSecond(),
@@ -94,6 +84,6 @@ class AzLinkPM extends PluginBase
         // sys_getloadavg is not implemented on Windows platforms.
         $load = function_exists('sys_getloadavg') ? sys_getloadavg()[0] : false;
 
-        return is_int($load) ? $load : -1;
+        return is_float($load) ? $load : -1;
     }
 }

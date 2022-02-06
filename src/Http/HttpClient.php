@@ -4,14 +4,13 @@ namespace Azuriom\AzLink\PocketMine\Http;
 
 use Azuriom\AzLink\PocketMine\AzLinkPM;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 
 class HttpClient
 {
-    /** @var AzLinkPM */
-    protected $plugin;
+    protected AzLinkPM $plugin;
 
-    /** @var Client */
-    protected $client;
+    protected Client $client;
 
     public function __construct(AzLinkPM $plugin)
     {
@@ -26,19 +25,13 @@ class HttpClient
      *
      * @throws \Psr\Http\Client\ClientExceptionInterface
      */
-    public function getStatus()
+    public function getStatus(): ResponseInterface
     {
         return $this->client->get($this->getUrl(), [
             'headers' => $this->getHeaders(),
         ]);
     }
 
-    /**
-     * Send the server data to the website.
-     *
-     * @param  array  $data
-     * @return \Azuriom\AzLink\PocketMine\Http\PendingPostRequest
-     */
     public function preparePostRequest(array $data): PendingPostRequest
     {
         return new PendingPostRequest($this->getUrl(), $data, $this->getHeaders());

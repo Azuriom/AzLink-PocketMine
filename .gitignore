@@ -12,3 +12,6 @@
 
 # Composer
 vendor/
+
+# Build
+build/

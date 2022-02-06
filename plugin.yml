@@ -1,13 +1,21 @@
 name: AzLink
-version: 0.1.0
+version: 0.2.0
 main: Azuriom\AzLink\PocketMine\AzLinkPM
-api: 3.0.0
+api: 4.0.0
+src-namespace-prefix: Azuriom\AzLink\PocketMine
 
 website: https://azuriom.com
 decription: The plugin to link your Azuriom website with your server.
 author: Azuriom Team
 
 extensions: [curl]
+
+commands:
+  azlink:
+    description: Manage the AzLink plugin.
+    usage: /azlink [status|setup|fetch|port]
+    permission: azlink.admin
+    aliases: [azuriomlink]
 
 permissions:
   azlink.admin:

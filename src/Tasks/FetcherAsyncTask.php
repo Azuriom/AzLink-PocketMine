@@ -5,21 +5,19 @@ namespace Azuriom\AzLink\PocketMine\Tasks;
 use Azuriom\AzLink\PocketMine\AzLinkPM;
 use Azuriom\AzLink\PocketMine\Http\PendingPostRequest;
 use Exception;
-use pocketmine\command\ConsoleCommandSender;
+use pocketmine\console\ConsoleCommandSender;
 use pocketmine\scheduler\AsyncTask;
-use pocketmine\Server;
 
 class FetcherAsyncTask extends AsyncTask
 {
-    /** @var PendingPostRequest */
-    protected $request;
+    protected PendingPostRequest $request;
 
     public function __construct(PendingPostRequest $request)
     {
         $this->request = $request;
     }
 
-    public function onRun()
+    public function onRun(): void
     {
         try {
             $response = $this->request->send();
@@ -31,7 +29,7 @@ class FetcherAsyncTask extends AsyncTask
         }
     }
 
-    public function onCompletion(Server $server)
+    public function onCompletion(): void
     {
         $response = $this->getResult();
 
@@ -45,12 +43,14 @@ class FetcherAsyncTask extends AsyncTask
             return;
         }
 
+        $server = $this->getPlugin()->getServer();
+        $console = new ConsoleCommandSender($server, $server->getLanguage());
         $commands = $response['commands'];
 
         $this->getPlugin()->getLogger()->info('Dispatching commands to '.count($commands).' players.');
 
         foreach ($commands as $playerName => $playerCommands) {
-            $player = $this->getPlugin()->getServer()->getPlayer($playerName);
+            $player = $server->getPlayerExact($playerName);
 
             foreach ($playerCommands as $command) {
                 $command = str_replace([
@@ -61,17 +61,17 @@ class FetcherAsyncTask extends AsyncTask
 
                 $this->getPlugin()->getLogger()->info("Dispatching command for player {$playerName}: {$command}");
 
-                $this->getPlugin()->getServer()->dispatchCommand(new ConsoleCommandSender(), $command);
+                $server->dispatchCommand($console, $command);
             }
         }
     }
 
-    protected function getPlugin()
+    protected function getPlugin(): AzLinkPM
     {
         return AzLinkPM::$instance;
     }
 
-    public static function sendData(AzLinkPM $plugin, bool $full = true)
+    public static function sendData(AzLinkPM $plugin, bool $full = true): void
     {
         $data = $plugin->getServerData($full);
 

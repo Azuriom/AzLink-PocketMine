@@ -7,20 +7,18 @@ use Azuriom\AzLink\PocketMine\Tasks\FetcherAsyncTask;
 use Exception;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginIdentifiableCommand;
-use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
 use pocketmine\utils\TextFormat;
 
-class AzLinkCommand extends Command implements PluginIdentifiableCommand
+class AzLinkCommand extends Command implements PluginOwned
 {
-    private $plugin;
+    private AzLinkPM $plugin;
 
     public function __construct(AzLinkPM $plugin)
     {
         parent::__construct('azlink', 'Manage the AzLink plugin.', '/azlink [status|setup|fetch|port]');
 
         $this->plugin = $plugin;
-        $this->setPermission('azlink.admin');
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
@@ -60,7 +58,7 @@ class AzLinkCommand extends Command implements PluginIdentifiableCommand
         $this->sendUsage($sender);
     }
 
-    public function getPlugin(): Plugin
+    public function getOwningPlugin(): AzLinkPM
     {
         return $this->plugin;
     }
@@ -71,8 +69,8 @@ class AzLinkCommand extends Command implements PluginIdentifiableCommand
 
         $sender->sendMessage(TextFormat::BLUE."AzLink v{$version}. Website: https://azuriom.com");
         $sender->sendMessage(TextFormat::GRAY.'- /azlink setup <url> <key>');
-        $sender->sendMessage(TextFormat::GRAY.'- /azlink port <port>');
         $sender->sendMessage(TextFormat::GRAY.'- /azlink status');
+        $sender->sendMessage(TextFormat::GRAY.'- /azlink fetch');
     }
 
     private function setup(CommandSender $sender, string $url, string $key): void
