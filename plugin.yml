@@ -1,5 +1,5 @@
 name: AzLink
-version: 0.2.0
+version: 1.0.0
 main: Azuriom\AzLink\PocketMine\AzLinkPM
 api: 4.0.0
 src-namespace-prefix: Azuriom\AzLink\PocketMine
