@@ -24,6 +24,16 @@ class AzLinkPM extends PluginBase
 
         require_once __DIR__.'/../vendor/autoload.php';
 
+        
+        $this->getServer()->getAsyncPool()->addWorkerStartHook(function(int $worker): void {
+            $this->getServer()->getAsyncPool()->submitTaskToWorker(new class extends AsyncTask {
+                public function onRun(): void
+                {
+                    require_once __DIR__.'/../vendor/autoload.php';
+                }
+            }, $worker);
+        });
+
         $this->httpClient = new HttpClient($this);
 
         $this->getServer()->getCommandMap()->register('azlink', new AzLinkCommand($this));
