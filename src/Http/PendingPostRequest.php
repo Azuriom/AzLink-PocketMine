@@ -2,32 +2,33 @@
 
 namespace Azuriom\AzLink\PocketMine\Http;
 
-use Azuriom\AzLink\PocketMine\Threaded\ArrayThreaded;
+use Azuriom\AzLink\PocketMine\Utils\Convertor;
+use ThreadedArray;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use RuntimeException;
-use Threaded;
+use ThreadedBase;
 
-class PendingPostRequest extends Threaded
+class PendingPostRequest extends ThreadedBase
 {
     protected string $url;
 
     /**
-     * @var ArrayThreaded
+     * @var ThreadedArray
      */
-    protected ArrayThreaded $data;
+    protected ThreadedArray $data;
     /**
-     * @var ArrayThreaded
+     * @var ThreadedArray
      */
-    protected ArrayThreaded $headers;
+    protected ThreadedArray $headers;
 
     public function __construct(string $url, array $data, array $headers)
     {
         $this->url = $url;
-        $this->data = new ArrayThreaded($data);
-        $this->headers = new ArrayThreaded($headers);
+        $this->data =  ThreadedArray::fromArray($data);
+        $this->headers = ThreadedArray::fromArray($headers);
     }
 
     /**
@@ -39,7 +40,7 @@ class PendingPostRequest extends Threaded
      */
     public function send(): array
     {
-        $request = new Request('POST', $this->url, $this->headers->toArray(), $this->encodeJson($this->data->toArray()));
+        $request = new Request('POST', $this->url, Convertor::threadArrayToArray($this->headers), $this->encodeJson(Convertor::threadArrayToArray($this->data)));
 
         $response = (new Client())->send($request);
 
