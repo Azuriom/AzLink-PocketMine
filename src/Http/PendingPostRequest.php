@@ -2,24 +2,32 @@
 
 namespace Azuriom\AzLink\PocketMine\Http;
 
+use Azuriom\AzLink\PocketMine\Threaded\ArrayThreaded;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use JsonException;
+use Psr\Http\Client\ClientExceptionInterface;
 use RuntimeException;
+use Threaded;
 
-class PendingPostRequest
+class PendingPostRequest extends Threaded
 {
     protected string $url;
 
-    protected array $data;
-
-    protected array $headers;
+    /**
+     * @var ArrayThreaded
+     */
+    protected ArrayThreaded $data;
+    /**
+     * @var ArrayThreaded
+     */
+    protected ArrayThreaded $headers;
 
     public function __construct(string $url, array $data, array $headers)
     {
         $this->url = $url;
-        $this->data = $data;
-        $this->headers = $headers;
+        $this->data = new ArrayThreaded($data);
+        $this->headers = new ArrayThreaded($headers);
     }
 
     /**
@@ -27,11 +35,11 @@ class PendingPostRequest
      *
      * @return array
      *
-     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws ClientExceptionInterface
      */
     public function send(): array
     {
-        $request = new Request('POST', $this->url, $this->headers, $this->encodeJson($this->data));
+        $request = new Request('POST', $this->url, $this->headers->toArray(), $this->encodeJson($this->data->toArray()));
 
         $response = (new Client())->send($request);
 

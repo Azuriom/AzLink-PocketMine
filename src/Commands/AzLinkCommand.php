@@ -16,8 +16,8 @@ class AzLinkCommand extends Command implements PluginOwned
 
     public function __construct(AzLinkPM $plugin)
     {
-        parent::__construct('azlink', 'Manage the AzLink plugin.', '/azlink [status|setup|fetch|port]');
-
+        parent::__construct('azlink', 'Manage the AzLink plugin.', '/azlink [status|setup|fetch|port]', ['azuriomlink']);
+        $this->setPermission('azlink.admin');
         $this->plugin = $plugin;
     }
 
