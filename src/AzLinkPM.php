@@ -6,6 +6,7 @@ use Azuriom\AzLink\PocketMine\Commands\AzLinkCommand;
 use Azuriom\AzLink\PocketMine\Http\HttpClient;
 use Azuriom\AzLink\PocketMine\Tasks\FetcherTask;
 use pocketmine\player\Player;
+use pocketmine\scheduler\AsyncTask;
 use pocketmine\plugin\PluginBase;
 use pocketmine\world\World;
 
