@@ -2,10 +2,12 @@
 
 namespace Azuriom\AzLink\PocketMine\Utils;
 
-use ThreadedArray;
+
+
+use pmmp\thread\ThreadSafeArray;
 
 class Convertor {
-    public static function threadArrayToArray(ThreadedArray $value): array{
+    public static function threadArrayToArray(ThreadSafeArray $value): array{
         return (array) $value;
     }
 }
