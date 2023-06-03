@@ -3,49 +3,50 @@
 namespace Azuriom\AzLink\PocketMine\Http;
 
 use Azuriom\AzLink\PocketMine\Utils\Convertor;
-use ThreadedArray;
+
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use JsonException;
+use pmmp\thread\ThreadSafe;
+use pmmp\thread\ThreadSafeArray;
 use Psr\Http\Client\ClientExceptionInterface;
 use RuntimeException;
-use ThreadedBase;
 
-class PendingPostRequest extends ThreadedBase
+class PendingPostRequest extends ThreadSafe
 {
     protected string $url;
 
     /**
-     * @var ThreadedArray
+     * @var ThreadSafeArray
      */
-    protected ThreadedArray $data;
+    protected ThreadSafeArray $data;
     /**
-     * @var ThreadedArray
+     * @var ThreadSafeArray
      */
-    protected ThreadedArray $headers;
+    protected ThreadSafeArray $headers;
 
     public function __construct(string $url, array $data, array $headers)
     {
         $this->url = $url;
-        $this->data =  ThreadedArray::fromArray($data);
-        $this->headers = ThreadedArray::fromArray($headers);
+        $this->data =  ThreadSafeArray::fromArray($data);
+        $this->headers = ThreadSafeArray::fromArray($headers);
     }
 
     /**
      * Send the request.
      *
-     * @return array
+     * @return ThreadSafeArray
      *
      * @throws ClientExceptionInterface
      */
-    public function send(): array
+    public function send(): ThreadSafeArray
     {
         $request = new Request('POST', $this->url, Convertor::threadArrayToArray($this->headers), $this->encodeJson(Convertor::threadArrayToArray($this->data)));
 
         $response = (new Client())->send($request);
 
         try {
-            return json_decode($response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+            return ThreadSafeArray::fromArray(json_decode($response->getBody(), true, flags: JSON_THROW_ON_ERROR));
         } catch (JsonException $e) {
             throw new RuntimeException("Invalid JSON received ({$e->getMessage()}): {$response->getBody()}");
         }
