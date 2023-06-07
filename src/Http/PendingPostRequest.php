@@ -5,42 +5,44 @@ namespace Azuriom\AzLink\PocketMine\Http;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use JsonException;
+use pmmp\thread\ThreadSafe;
+use pmmp\thread\ThreadSafeArray;
+use Psr\Http\Client\ClientExceptionInterface;
 use RuntimeException;
 
-class PendingPostRequest
+class PendingPostRequest extends ThreadSafe
 {
     protected string $url;
 
-    protected array $data;
+    protected ThreadSafeArray $data;
 
-    protected array $headers;
+    protected ThreadSafeArray $headers;
 
     public function __construct(string $url, array $data, array $headers)
     {
         $this->url = $url;
-        $this->data = $data;
-        $this->headers = $headers;
+        $this->data = ThreadSafeArray::fromArray($data);
+        $this->headers = ThreadSafeArray::fromArray($headers);
     }
 
     /**
      * Send the request.
      *
-     * @return array
+     * @return ThreadSafeArray
      *
-     * @throws \Psr\Http\Client\ClientExceptionInterface
+     * @throws ClientExceptionInterface|JsonException
      */
-    public function send(): array
+    public function send(): ThreadSafeArray
     {
-        if (! class_exists(Client::class)) {
-            require __DIR__.'/../../vendor/autoload.php';
-        }
-
-        $request = new Request('POST', $this->url, $this->headers, $this->encodeJson($this->data));
+        $json = $this->encodeJson((array) $this->data);
+        $request = new Request('POST', $this->url, (array) $this->headers, $json);
 
         $response = (new Client())->send($request);
 
         try {
-            return json_decode($response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+            $data = json_decode($response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+
+            return ThreadSafeArray::fromArray($data);
         } catch (JsonException $e) {
             throw new RuntimeException("Invalid JSON received ({$e->getMessage()}): {$response->getBody()}");
         }

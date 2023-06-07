@@ -5,6 +5,7 @@ namespace Azuriom\AzLink\PocketMine\Tasks;
 use Azuriom\AzLink\PocketMine\AzLinkPM;
 use Azuriom\AzLink\PocketMine\Http\PendingPostRequest;
 use Exception;
+use pmmp\thread\ThreadSafeArray;
 use pocketmine\console\ConsoleCommandSender;
 use pocketmine\scheduler\AsyncTask;
 
@@ -39,13 +40,23 @@ class FetcherAsyncTask extends AsyncTask
             return;
         }
 
-        if (! is_array($response) || empty($response['commands'] ?? [])) {
+        if (! ($response instanceof ThreadSafeArray)) {
+            $this->getPlugin()->getLogger()->error('Invalid response received: '.var_export($response, true));
+
             return;
         }
 
+        $commands = (array) ($response['commands'] ?? []);
+
+        if (! empty($commands)) {
+            $this->dispatchCommands($commands);
+        }
+    }
+
+    protected function dispatchCommands(array $commands)
+    {
         $server = $this->getPlugin()->getServer();
         $console = new ConsoleCommandSender($server, $server->getLanguage());
-        $commands = $response['commands'];
 
         $this->getPlugin()->getLogger()->info('Dispatching commands to '.count($commands).' players.');
 

@@ -6,6 +6,7 @@ use Azuriom\AzLink\PocketMine\Commands\AzLinkCommand;
 use Azuriom\AzLink\PocketMine\Http\HttpClient;
 use Azuriom\AzLink\PocketMine\Tasks\FetcherTask;
 use pocketmine\player\Player;
+use pocketmine\scheduler\AsyncTask;
 use pocketmine\plugin\PluginBase;
 use pocketmine\world\World;
 
@@ -23,6 +24,15 @@ class AzLinkPM extends PluginBase
         static::$instance = $this;
 
         require_once __DIR__.'/../vendor/autoload.php';
+
+        $this->getServer()->getAsyncPool()->addWorkerStartHook(function (int $worker): void {
+            $this->getServer()->getAsyncPool()->submitTaskToWorker(new class extends AsyncTask {
+                public function onRun(): void
+                {
+                    require_once __DIR__.'/../vendor/autoload.php';
+                }
+            }, $worker);
+        });
 
         $this->httpClient = new HttpClient($this);
 

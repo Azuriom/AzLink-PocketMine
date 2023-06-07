@@ -1,12 +1,12 @@
 {
     "name": "azuriom/azlink-pocketmine",
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "guzzlehttp/guzzle": "^7.4"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.2.0",
-        "pocketmine/pocketmine-mp": "^4.4.2",
+        "pocketmine/pocketmine-mp": "^5.0.0",
         "phpstan/phpstan-strict-rules": "^1.0",
         "phpstan/extension-installer": "^1.0"
     },
@@ -26,7 +26,7 @@
         "ext-igbinary": "*",
         "ext-leveldb": "*",
         "ext-morton": "*",
-        "ext-pthreads": "*",
+        "ext-pmmpthread": "*",
         "ext-sockets": "*",
         "ext-yaml": "*"
     }
